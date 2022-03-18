@@ -151,7 +151,18 @@ function newsDetail() {
   container.innerHTML = "\n    <h1>\n      ".concat(newsContent.title, "\n    </h1>\n  \n    <div>\n      <a href=\"#\">\uBAA9\uB85D\uC73C\uB85C</a>\n    <div>\n  ");
 }
 
-window.addEventListener("hashchange", newsDetail);
+function router() {
+  var routePath = location.hash;
+
+  if (routePath === "") {
+    newsFeed();
+  } else {
+    newsDetail();
+  }
+}
+
+window.addEventListener("hashchange", router);
+router();
 },{}],"../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
