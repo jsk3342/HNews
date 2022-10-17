@@ -1,5 +1,23 @@
 {
   "devDependencies": {
     "typescript": "^4.6.2"
-  }
+  },
+  "name": "hnews",
+  "description": "해커 뉴스 만들기",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsk3342/HNews.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jsk3342/HNews/issues"
+  },
+  "homepage": "https://github.com/jsk3342/HNews#readme"
 }
