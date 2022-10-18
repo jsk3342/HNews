@@ -126,7 +126,10 @@ var newsFeed = JSON.parse(ajax.response);
 var ul = document.createElement('ul');
 for (var i = 0; i < 10; i++) {
   var li = document.createElement('li');
-  li.innerHTML = newsFeed[i].title;
+  var a = document.createElement('a');
+  a.href = newsFeed[i].url;
+  a.innerHTML = "".concat(newsFeed[i].title, " (").concat(newsFeed[i].comments_count, ")");
+  li.appendChild(a);
   ul.appendChild(li);
 }
 document.getElementById('root').appendChild(ul);
@@ -155,7 +158,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49446" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53143" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
