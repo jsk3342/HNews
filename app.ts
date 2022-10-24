@@ -3,15 +3,29 @@ type Store = {
   feeds: NewsFeed[];
 }
 
-type NewsFeed = {
+
+type News = {
   id: number;
-  comments_count: number;
+  time_ago: string;
+  title: string;
   url: string;
   user: string;
-  time_ago: string;
+  content: string;
+}
+
+type NewsFeed = News & {
+  comments_count: number;
   points: number;
-  title: string;
   read?: boolean;
+}
+
+type NewsDetail = News & {
+  comments: [];
+}
+
+type NewsComment = News &{
+  comments: [];
+  level: number;
 }
 
 const ajax: XMLHttpRequest = new XMLHttpRequest();
@@ -24,14 +38,14 @@ const store: Store = {
     feeds: [],
 }
 
-function getData(url) {
+function getData<AjaxResponse>(url: string): AjaxResponse {
     ajax.open('GET', url, false)
     ajax.send();
 
     return JSON.parse(ajax.response)
 }
 
-function makeFeeds(feeds) {
+function makeFeeds(feeds: NewsFeed[]) : NewsFeed[] {
     for (let i = 0; i < feeds.length; i++) {
         feeds[i].read = false
     }
@@ -39,11 +53,19 @@ function makeFeeds(feeds) {
     return feeds
 }
 
-function newsFeed() {
+function updateView(html: string): void {
+  if (container != null) {
+    container.innerHTML = html;
+  } else {
+    console.log('최상위 컨테이너가 없어 UI를 진행하지 못합니다.')
+  }
+}
+
+function newsFeed():void {
     let newsFeed: NewsFeed[] = store.feeds;
     const newsList = [];
     if (newsFeed.length === 0) {
-        newsFeed =store.feeds= getData(NEWS_URL);
+        newsFeed =store.feeds= getData<NewsFeed[]>(NEWS_URL);
     }
 
     let template = `
@@ -96,19 +118,16 @@ function newsFeed() {
     }
 
     template = template.replace('{{__news_feed__}}', newsList.join(''))
-    template = template.replace('{{__prev_page__}}', store.currentPage > 1 ? store.currentPage - 1 : 1)
-    template = template.replace('{{__next_page__}}', store.currentPage + 1)
+    template = template.replace('{{__prev_page__}}', String(store.currentPage > 1 ? store.currentPage - 1 : 1))
+    template = template.replace('{{__next_page__}}', String(store.currentPage + 1))
 
-  if (container) {
-    container.innerHTML = template;
-  }
-
+  updateView(template)
 }
 
-function newsDetail() {
+function newsDetail(): void{
     const id = location.hash.substring(7);
 
-    const newsContent = getData(CONTENT_URL.replace('@id', id))
+    const newsContent = getData<NewsDetail>(CONTENT_URL.replace('@id', id))
     
     let template = `
         <div class="bg-gray-600 min-h-screen pb-8">
@@ -145,37 +164,34 @@ function newsDetail() {
             break;
         }
     }
+  updateView(template.replace('{{__comments__}}', makeComment(newsContent.comments)))
+}
 
-    function makeComment(comments, called = 0) {
+function makeComment(comments: NewsComment[]):string {
     const commentString = [];
 
-    for(let i = 0; i < comments.length; i++) {
+  for (let i = 0; i < comments.length; i++) {
+    const comment: NewsComment = comments[i];  
+
       commentString.push(`
-        <div style="padding-left: ${called * 40}px;" class="mt-4">
+        <div style="padding-left: ${comment.level * 40}px;" class="mt-4">
           <div class="text-gray-400">
             <i class="fa fa-sort-up mr-2"></i>
-            <strong>${comments[i].user}</strong> ${comments[i].time_ago}
+            <strong>${comment.user}</strong> ${comment.time_ago}
           </div>
-          <p class="text-gray-700">${comments[i].content}</p>
+          <p class="text-gray-700">${comment.content}</p>
         </div>      
       `);
 
-      if (comments[i].comments.length > 0) {
-        commentString.push(makeComment(comments[i].comments, called + 1));
+      if (comment.comments.length > 0) {
+        commentString.push(makeComment(comment.comments));
       }
     }
 
     return commentString.join('');
   }
 
-  if (container != null) {
-    container.innerHTML = template.replace('{{__comments__}}', makeComment(newsContent.comments));
-  } else {
-    console.log('최상위 컨테이너가 없어 UI를 진행하지 못합니다.')
-  }
-}
-
-function router() {
+function router(): void {
     const routePath = location.hash;
     if (routePath === '') {
         newsFeed();
